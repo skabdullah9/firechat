@@ -1,8 +1,8 @@
 <template>
-  <div class="container min-h-screen bg-gray-900 ">
+  <div class="container h-screen bg-gray-900 ">
     <div v-if="state.userName === '' || state.userName === null" class="login">
       <form @submit.prevent="login">
-        <section class="text-blueGray-700 ">
+        <section class="text-blueGray-700 overflow-hidden">
           <div class="container items-center px-5 py-12 lg:px-20 h-screen flex">
             <div
               class="flex flex-col w-full p-10 mx-auto transition duration-500 ease-in-out transform bg-gray-800  rounded-lg lg:w-2/6 md:w-1/2 md:mt-0"
@@ -186,7 +186,7 @@ export default {
   text-align: center;
   color: #2c3e50;
   background-color: #111827;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 ::-webkit-scrollbar {
   width: 3px;
