@@ -42,7 +42,7 @@
         Made with
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 inline-block mx-1"
+          class="h-5 w-5 inline-block"
           viewBox="0 0 20 20"
           fill="#4F46E5"
         >
@@ -57,21 +57,18 @@
     </div>
     <div v-else class="chat min-h-screen">
       <header class="flex justify-between py-5 text-gray-600">
-        <h1 class="font-mono text-4xl ">
-          Welcome,<span class="text-indigo-800">{{ state.userName }}</span>
+        <h1 class="font-mono md:text-4xl text-xl">
+          Welcome,<span class="text-indigo-700">{{ state.userName }}</span>
         </h1>
         <button
           @click="logOut"
-          class="font-mono text-2xl rounded-xl px-2 flex items-center hover:text-gray-500"
+          class="font-mono text-sm md:text-2xl rounded-xl px-2 flex items-center hover:text-gray-500"
         >
           <img class="block mr-1" src="./assets/logout.svg" alt="" />
           Logout
         </button>
       </header>
-      <section
-        class="flex-grow bg-gray-800 rounded-lg text-gray-100 relative "
-        style="height: calc(100vh - 80px);overflow-y: auto"
-      >
+      <section class="flex-grow bg-gray-800 rounded-lg text-gray-100 relative ">
         <div class="chatbox px-4 ">
           <div
             v-for="message in state.messages"
@@ -85,7 +82,9 @@
                   : 'inline-block text-left',
               ]"
             >
-              <div class="username font-mono my-2 text-gray-300 px-1">
+              <div
+                class="username text-xs md:text-base font-mono my-2 text-gray-300 px-1"
+              >
                 {{ message.username }}
               </div>
               <div
@@ -94,7 +93,7 @@
                     ? 'bg-indigo-800'
                     : 'bg-gray-700',
                 ]"
-                class="content p-2 px-3 text-xl inline-block rounded-lg"
+                class="content p-2 px-3 text-base md:text-xl inline-block rounded-lg"
               >
                 {{ message.content }}
               </div>
@@ -191,16 +190,29 @@ export default {
 }
 ::-webkit-scrollbar {
   width: 3px;
+  /* border-radius: 10%; */
 }
 
 ::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #374151;
+  background-color: #1f2937;
+  border-radius: 25px;
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-  background-color: #9ca3af;
+  background-color: #4b5563;
+  border-radius: 25px;
+}
+section {
+  height: calc(100vh - 130px);
+  overflow-y: auto;
+}
+
+@media screen and (min-width: 640px) {
+  section {
+    height: calc(100vh - 80px);
+  }
 }
 </style>
