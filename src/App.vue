@@ -58,7 +58,7 @@
                     ? 'bg-indigo-800'
                     : 'bg-gray-700',
                 ]"
-                class="content py-1 px-2 text-base md:text-xl inline-block rounded-lg font-sans"
+                class="content pt-1 pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans"
               >
                 {{ message.content }}
               </div>
@@ -236,11 +236,20 @@ export default {
       isLoggedIn.value = false;
     };
     onBeforeMount(() => {
-      isLoggedIn.value = JSON.parse(localStorage.isLoggedIn);
+      if (localStorage.isLoggedIn) {
+        isLoggedIn.value = JSON.parse(localStorage.isLoggedIn);
+      } else {
+        isLoggedIn.value = false;
+      }
       if (isLoggedIn.value == true) {
-        let currentUser = JSON.parse(localStorage.username.split(","));
-        currentUser = currentUser[currentUser.length - 1];
-        state.userName = currentUser;
+        if (localStorage.username) {
+          let currentUser =
+            JSON.parse(localStorage.username.split(",")) || false;
+          currentUser = currentUser[currentUser.length - 1];
+          state.userName = currentUser;
+        } else {
+          state.userName = "";
+        }
       }
     });
 
