@@ -78,7 +78,7 @@
               />
               <button
                 type="submit"
-                class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white bg-indigo-600 rounded-r-md hover:bg-indigo-500 focus:bg-indigo-700"
+                class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white bg-indigo-600 rounded-r-md hover:bg-indigo-500 focus:outline-none"
               >
                 Send <img class="ml-2" src="./assets/send.svg" alt="" />
               </button>
@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import { reactive, ref, onMounted, onBeforeMount } from "vue";
+import { reactive, ref, onMounted, onBeforeMount, watchEffect } from "vue";
 import db from "./db.js";
 export default {
   setup() {
@@ -170,6 +170,8 @@ export default {
     let registerdUsernames = reactive([]);
     const alert = ref(false);
     const chatbox = ref(null);
+    let sound1 = null;
+    let sound2 = null;
     const login = () => {
       if (
         inputUsername.value !== "" &&
@@ -225,6 +227,8 @@ export default {
       msgref.push(message);
       scrollToBottom();
       inputMsg.value = "";
+
+      sound2.play();
     };
     const logOut = () => {
       state.userName = "";
@@ -260,13 +264,23 @@ export default {
         }, 1);
         isLoading.value = false;
       });
+
+      sound1 = new Audio(require("@/assets/messenger.mp3"));
+      sound2 = new Audio(require("@/assets/sent.mp3"));
     });
     const scrollToBottom = () => {
       if (chatbox.value) {
         chatbox.value.scrollTop = chatbox.value.scrollHeight;
       }
     };
-
+    watchEffect(() => {
+      if (
+        state.messages.length &&
+        state.userName !== state.messages[state.messages.length - 1].username
+      ) {
+        sound1.play();
+      }
+    });
     return {
       isLoggedIn,
       inputUsername,
