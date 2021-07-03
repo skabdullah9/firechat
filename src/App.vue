@@ -1,75 +1,40 @@
 <template>
-  <div class="container h-screen bg-gray-900 ">
-    <div v-if="state.userName === '' || state.userName === null" class="login">
-      <form @submit.prevent="login">
-        <section class="text-blueGray-700 overflow-hidden">
-          <div class="container items-center px-5 py-12 lg:px-20 h-screen flex">
-            <div
-              class="flex flex-col w-full p-10 mx-auto transition duration-500 ease-in-out transform bg-gray-800  rounded-lg lg:w-2/6 md:w-1/2 md:mt-0"
-            >
-              <div class="relative ">
-                <h1
-                  class="mb-4 text-gray-100 font-bold text-xl font-mono uppercase tracking-widest"
-                >
-                  🔥Firechat
-                </h1>
-                <input
-                  type="text"
-                  v-model="inputUsername"
-                  id="username"
-                  name="username"
-                  placeholder=" Enter your username"
-                  class="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform border border-indigo-300 rounded-md bg-blueGray-100  focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2 mb-2"
-                />
-              </div>
-              <button
-                type="submit"
-                value="Login"
-                class="w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform bg-indigo-600 rounded-md focus:shadow-outline focus:outline-none hover:bg-indigo-800 cursor-pointer flex items-center justify-center"
-              >
-                Login <img class="ml-2" src="./assets/send.svg" alt="" />
-              </button>
-              <p class="mx-auto mt-3 text-sm text-gray-500">
-                Not have an account? <a href="#" class="underline">Register</a>
-              </p>
-            </div>
-          </div>
-        </section>
-      </form>
-      <p
-        class="absolute bottom-3 left-1/2 transform -translate-x-1/2 text-gray-500 whitespace-nowrap font-mono"
-      >
-        Made with
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 inline-block"
-          viewBox="0 0 20 20"
-          fill="#4F46E5"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        by Abdullah
-      </p>
-    </div>
-    <div v-else class="chat min-h-screen">
+  <div class="container  h-screen bg-gray-900 relative">
+    <div v-if="isLoggedIn" class="chat min-h-screen">
       <header class="flex justify-between py-5 text-gray-600">
-        <h1 class="font-mono md:text-4xl text-xl">
+        <h1 class="font-mono md:text-4xl text-xl ml-2">
           Welcome,<span class="text-indigo-700">{{ state.userName }}</span>
         </h1>
         <button
           @click="logOut"
-          class="font-mono text-sm md:text-2xl rounded-xl px-2 flex items-center hover:text-gray-500"
+          class="font-mono text-sm md:text-2xl rounded-xl px-2 flex items-center hover:text-gray-500 mr-2"
         >
           <img class="block mr-1" src="./assets/logout.svg" alt="" />
           Logout
         </button>
       </header>
-      <section class="flex-grow bg-gray-800 rounded-lg text-gray-100 relative ">
-        <div class="chatbox px-4 ">
+      <section
+        ref="chatbox"
+        class="flex-grow bg-gray-800 rounded-lg text-gray-100 relative "
+      >
+        <div
+          v-if="isLoading"
+          class="loading h-full flex items-center justify-center "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-1/6 w-1/6 animate-spin "
+            viewBox="0 0 20 20"
+            fill="#6D28D9"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <div v-else class="chatbox px-4">
           <div
             v-for="message in state.messages"
             :key="message.key"
@@ -83,7 +48,7 @@
               ]"
             >
               <div
-                class="username text-xs md:text-base font-mono my-2 text-gray-300 px-1"
+                class="username text-xs md:text-base font-mono mt-2 mb-1 text-gray-300 px-1"
               >
                 {{ message.username }}
               </div>
@@ -93,7 +58,7 @@
                     ? 'bg-indigo-800'
                     : 'bg-gray-700',
                 ]"
-                class="content p-2 px-3 text-base md:text-xl inline-block rounded-lg"
+                class="content py-1 px-2 text-base md:text-xl inline-block rounded-lg font-sans"
               >
                 {{ message.content }}
               </div>
@@ -122,11 +87,75 @@
         </footer>
       </section>
     </div>
+    <div v-else class="login overflow-hidden  ">
+      <form @submit.prevent="login">
+        <section class="text-blueGray-700 overflow-hidden">
+          <div
+            class="container items-center px-5 py-12 lg:px-20 h-screen flex flex-col justify-center"
+          >
+            <div
+              v-if="alert"
+              class="alert bg-red-100 text-red-600 px-4 py-1 mb-5 rounded-md border-2 border-red-500 font-mono text-sm md:text-base"
+            >
+              ❌ '{{ inputUsername }}' already exists
+            </div>
+            <div
+              class="flex flex-col w-full py-10 px-5 md:px-10 mx-auto transition duration-500 ease-in-out transform bg-gray-800  rounded-lg lg:w-3/6 md:w-1/2 md:mt-0 max-w-sm"
+            >
+              <div class="relative">
+                <h1
+                  class="mb-4 text-gray-100 font-bold text-xl font-mono uppercase tracking-widest"
+                >
+                  🔥Firechat
+                </h1>
+                <input
+                  type="text"
+                  v-model="inputUsername"
+                  v-on:keyup.backspace="alert = false"
+                  id="username"
+                  name="username"
+                  placeholder=" Enter your username"
+                  class="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform border border-indigo-300 rounded-md bg-blueGray-100  focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2 mb-2 font-sans ring-indigo-500"
+                />
+              </div>
+              <button
+                type="submit"
+                value="Login"
+                class="w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform bg-indigo-600 rounded-md focus:shadow-outline focus:outline-none hover:bg-indigo-800 cursor-pointer flex items-center justify-center"
+              >
+                Login <img class="ml-2" src="./assets/send.svg" alt="" />
+              </button>
+              <p class="mx-auto mt-3 text-sm text-gray-500">
+                Not have an account? <a href="#" class="underline">Register</a>
+              </p>
+            </div>
+          </div>
+        </section>
+      </form>
+      <p
+        class="absolute bottom-14 md:bottom-3 left-1/2 transform -translate-x-1/2 text-gray-500 whitespace-nowrap font-mono"
+      >
+        Made with
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 inline-block"
+          viewBox="0 0 20 20"
+          fill="#4F46E5"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        by Abdullah
+      </p>
+    </div>
   </div>
 </template>
 
 <script>
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, onMounted, onBeforeMount } from "vue";
 import db from "./db.js";
 export default {
   setup() {
@@ -136,10 +165,53 @@ export default {
       userName: "",
       messages: [],
     });
+    const isLoggedIn = ref(false);
+    const isLoading = ref(true);
+    let registerdUsernames = reactive([]);
+    const alert = ref(false);
+    const chatbox = ref(null);
     const login = () => {
-      if (inputUsername.value !== "") {
-        state.userName = inputUsername.value;
-        inputUsername.value = "";
+      if (
+        inputUsername.value !== "" &&
+        inputUsername.value !== null &&
+        inputUsername.value !== undefined
+      ) {
+        let matchUsername = state.messages.find(
+          (msg) => msg.username == inputUsername.value
+        );
+        if (localStorage.username) {
+          registerdUsernames = JSON.parse(localStorage.username);
+        }
+        if (matchUsername) {
+          let existingUser = registerdUsernames.find(
+            (name) => name == matchUsername.username
+          );
+          if (existingUser) {
+            state.userName = inputUsername.value;
+            inputUsername.value = "";
+            registerdUsernames.splice(
+              registerdUsernames.indexOf(state.userName),
+              1
+            );
+            registerdUsernames[registerdUsernames.length] = state.userName;
+            localStorage.username = JSON.stringify(registerdUsernames);
+            localStorage.isLoggedIn = true;
+            isLoggedIn.value = true;
+            scrollToBottom();
+          } else {
+            localStorage.isLoggedIn = false;
+            isLoggedIn.value = false;
+            alert.value = true;
+          }
+        } else {
+          state.userName = inputUsername.value;
+          inputUsername.value = "";
+          registerdUsernames.push(state.userName);
+          localStorage.username = JSON.stringify(registerdUsernames);
+          localStorage.isLoggedIn = true;
+          isLoggedIn.value = true;
+          scrollToBottom();
+        }
       }
     };
     const sendMsg = () => {
@@ -151,18 +223,29 @@ export default {
         content: inputMsg.value,
       };
       msgref.push(message);
+      scrollToBottom();
       inputMsg.value = "";
     };
     const logOut = () => {
       state.userName = "";
+      localStorage.isLoggedIn = false;
+      isLoggedIn.value = false;
     };
+    onBeforeMount(() => {
+      isLoggedIn.value = JSON.parse(localStorage.isLoggedIn);
+      if (isLoggedIn.value == true) {
+        let currentUser = JSON.parse(localStorage.username.split(","));
+        currentUser = currentUser[currentUser.length - 1];
+        state.userName = currentUser;
+      }
+    });
+
     onMounted(() => {
       const msgsref = db.database().ref("messages");
 
       msgsref.on("value", (snapshot) => {
         const data = snapshot.val();
         const messages = [];
-
         Object.keys(data).forEach((key) => {
           messages.push({
             id: key,
@@ -171,9 +254,31 @@ export default {
           });
         });
         state.messages = messages;
+
+        setTimeout(() => {
+          scrollToBottom();
+        }, 1);
+        isLoading.value = false;
       });
     });
-    return { inputUsername, state, login, inputMsg, sendMsg, logOut };
+    const scrollToBottom = () => {
+      if (chatbox.value) {
+        chatbox.value.scrollTop = chatbox.value.scrollHeight;
+      }
+    };
+
+    return {
+      isLoggedIn,
+      inputUsername,
+      state,
+      login,
+      inputMsg,
+      sendMsg,
+      logOut,
+      isLoading,
+      alert,
+      chatbox,
+    };
   },
 };
 </script>
@@ -190,7 +295,6 @@ export default {
 }
 ::-webkit-scrollbar {
   width: 3px;
-  /* border-radius: 10%; */
 }
 
 ::-webkit-scrollbar-track {
