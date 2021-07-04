@@ -13,80 +13,89 @@
           Logout
         </button>
       </header>
-      <section
-        ref="chatbox"
-        class="flex-grow bg-gray-800 rounded-lg md:rounded-xl text-gray-100 relative mb-20"
-        :style="{ height: vh + 'px' }"
+      <div
+        id="wrapper"
+        class="wrapper bg-gray-800 rounded-lg md:rounded-xl text-gray-100 pr-px relative"
       >
         <div
-          v-if="isLoading"
-          class="loading h-full flex items-center justify-center "
+          class="absolute p-1 pb-1.5 -right-1 -top-1 bg-gray-900 rounded-3xl z-10"
+        ></div>
+        <section
+          ref="chatbox"
+          :class="{ 'overflow-y-auto': !isLoading }"
+          class="relative"
+          :style="{ height: vh + 'px' }"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-1/6 w-1/6 animate-spin "
-            viewBox="0 0 20 20"
-            fill="#6D28D9"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </div>
-        <div v-else class="chatbox px-4">
           <div
-            v-for="message in state.messages"
-            :key="message.key"
-            class="flex"
+            v-if="isLoading"
+            class="loading h-full flex items-center justify-center "
           >
-            <div
-              :class="[
-                state.userName === message.username
-                  ? 'inline-block text-right ml-auto'
-                  : 'inline-block text-left',
-              ]"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-1/6 w-1/6 animate-spin "
+              viewBox="0 0 20 20"
+              fill="#6D28D9"
             >
-              <div
-                class="username text-xs md:text-base font-mono mt-2 mb-1 text-gray-300 px-1"
-              >
-                {{ message.username }}
-              </div>
+              <path
+                fill-rule="evenodd"
+                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div v-else class="chatbox px-4">
+            <div
+              v-for="message in state.messages"
+              :key="message.key"
+              class="flex"
+            >
               <div
                 :class="[
                   state.userName === message.username
-                    ? 'bg-indigo-800'
-                    : 'bg-gray-700',
+                    ? 'inline-block text-right ml-auto'
+                    : 'inline-block text-left',
                 ]"
-                class="content pt-1 pb-1 md:pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans"
               >
-                {{ message.content }}
+                <div
+                  class="username text-xs md:text-base font-mono mt-2 mb-1 text-gray-300 px-1"
+                >
+                  {{ message.username }}
+                </div>
+                <div
+                  :class="[
+                    state.userName === message.username
+                      ? 'bg-indigo-800'
+                      : 'bg-gray-700',
+                  ]"
+                  class="content pt-1 pb-1 md:pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans"
+                >
+                  {{ message.content }}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <footer class="sticky  left-0 bottom-0 right-0 mx-3 md:mx-4">
-          <div class="gradient pt-10 bg-gradient-to-t from-gray-800"></div>
-          <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-8">
-            <div class="relative text-gray-700 ">
-              <input
-                class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans ring-indigo-600"
-                type="text"
-                v-model="inputMsg"
-                placeholder="Enter message here..."
-              />
-              <button
-                type="submit"
-                class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white bg-indigo-600 rounded-r-md hover:bg-indigo-500 focus:outline-none"
-              >
-                Send <img class="ml-2" src="./assets/send.svg" alt="" />
-              </button>
-            </div>
-          </form>
-        </footer>
-      </section>
+          <footer class="sticky  left-0 bottom-0 right-0 mx-3 md:mx-4">
+            <div class="gradient pt-10 bg-gradient-to-t from-gray-800"></div>
+            <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-8">
+              <div class="relative text-gray-700 ">
+                <input
+                  class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans ring-indigo-600"
+                  type="text"
+                  v-model="inputMsg"
+                  placeholder="Enter message here..."
+                />
+                <button
+                  type="submit"
+                  class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white bg-indigo-600 rounded-r-md hover:bg-indigo-500 focus:outline-none"
+                >
+                  Send <img class="ml-2" src="./assets/send.svg" alt="" />
+                </button>
+              </div>
+            </form>
+          </footer>
+        </section>
+      </div>
     </div>
     <div v-else class="login overflow-hidden  ">
       <form @submit.prevent="login">
@@ -127,7 +136,7 @@
                 Login <img class="ml-2" src="./assets/send.svg" alt="" />
               </button>
               <p class="mx-auto mt-3 text-sm text-gray-500">
-                Not have an account? <a href="#" class="underline">Register</a>
+                Register or Login without password
               </p>
             </div>
           </div>
@@ -370,6 +379,5 @@ body {
 }
 section {
   height: calc(100vh - 80px);
-  overflow-y: auto;
 }
 </style>
