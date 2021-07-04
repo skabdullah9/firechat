@@ -15,7 +15,8 @@
       </header>
       <section
         ref="chatbox"
-        class="flex-grow bg-gray-800 rounded-lg text-gray-100 relative "
+        class="flex-grow bg-gray-800 rounded-lg md:rounded-xl text-gray-100 relative mb-20"
+        :style="{ height: vh + 'px' }"
       >
         <div
           v-if="isLoading"
@@ -58,7 +59,7 @@
                     ? 'bg-indigo-800'
                     : 'bg-gray-700',
                 ]"
-                class="content pt-1 pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans"
+                class="content pt-1 pb-1 md:pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans"
               >
                 {{ message.content }}
               </div>
@@ -66,12 +67,12 @@
           </div>
         </div>
 
-        <footer class="sticky  left-0 bottom-0 right-0  mx-2">
+        <footer class="sticky  left-0 bottom-0 right-0 mx-3 md:mx-4">
           <div class="gradient pt-10 bg-gradient-to-t from-gray-800"></div>
-          <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3">
+          <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-8">
             <div class="relative text-gray-700 ">
               <input
-                class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none "
+                class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans ring-indigo-600"
                 type="text"
                 v-model="inputMsg"
                 placeholder="Enter message here..."
@@ -94,10 +95,10 @@
             class="container items-center px-5 py-12 lg:px-20 h-screen flex flex-col justify-center"
           >
             <div
-              v-if="alert"
+              v-if="Alert"
               class="alert bg-red-100 text-red-600 px-4 py-1 mb-5 rounded-md border-2 border-red-500 font-mono text-sm md:text-base"
             >
-              ❌ '{{ inputUsername }}' already exists
+              ❌ '{{ inputUsername }}' {{ AlertMsg }}
             </div>
             <div
               class="flex flex-col w-full py-10 px-5 md:px-10 mx-auto transition duration-500 ease-in-out transform bg-gray-800  rounded-lg lg:w-3/6 md:w-1/2 md:mt-0 max-w-sm"
@@ -111,7 +112,7 @@
                 <input
                   type="text"
                   v-model="inputUsername"
-                  v-on:keyup.backspace="alert = false"
+                  v-on:keyup.backspace="Alert = false"
                   id="username"
                   name="username"
                   placeholder=" Enter your username"
@@ -165,10 +166,14 @@ export default {
       userName: "",
       messages: [],
     });
+    let allMsgs = null;
     const isLoggedIn = ref(false);
     const isLoading = ref(true);
     let registerdUsernames = reactive([]);
-    const alert = ref(false);
+    let vh = window.innerHeight * 0.01;
+    vh = vh * 100 - 68;
+    const Alert = ref(false);
+    const AlertMsg = ref("username already exists");
     const chatbox = ref(null);
     let sound1 = null;
     let sound2 = null;
@@ -178,6 +183,13 @@ export default {
         inputUsername.value !== null &&
         inputUsername.value !== undefined
       ) {
+        if (inputUsername.value.length < 4) {
+          localStorage.isLoggedIn = false;
+          isLoggedIn.value = false;
+          AlertMsg.value = "username atleast 4 characters";
+          Alert.value = true;
+          return;
+        }
         let matchUsername = state.messages.find(
           (msg) => msg.username == inputUsername.value
         );
@@ -199,11 +211,14 @@ export default {
             localStorage.username = JSON.stringify(registerdUsernames);
             localStorage.isLoggedIn = true;
             isLoggedIn.value = true;
-            scrollToBottom();
+            setTimeout(() => {
+              scrollToBottom();
+            }, 1);
           } else {
             localStorage.isLoggedIn = false;
             isLoggedIn.value = false;
-            alert.value = true;
+            AlertMsg.value = "username already exists";
+            Alert.value = true;
           }
         } else {
           state.userName = inputUsername.value;
@@ -212,7 +227,6 @@ export default {
           localStorage.username = JSON.stringify(registerdUsernames);
           localStorage.isLoggedIn = true;
           isLoggedIn.value = true;
-          scrollToBottom();
         }
       }
     };
@@ -244,7 +258,8 @@ export default {
       if (isLoggedIn.value == true) {
         if (localStorage.username) {
           let currentUser =
-            JSON.parse(localStorage.username.split(",")) || false;
+            JSON.parse(localStorage.username.split(",")) ||
+            localStorage.username[0];
           currentUser = currentUser[currentUser.length - 1];
           state.userName = currentUser;
         } else {
@@ -266,6 +281,7 @@ export default {
             content: data[key].content,
           });
         });
+
         state.messages = messages;
 
         setTimeout(() => {
@@ -276,21 +292,30 @@ export default {
 
       sound1 = new Audio(require("@/assets/messenger.mp3"));
       sound2 = new Audio(require("@/assets/sent.mp3"));
+
+      watchEffect(() => {
+        let obj = Object.assign({}, state.messages[state.messages.length - 1]);
+
+        if (obj.username !== state.userName && isLoggedIn.value) {
+          sound1.play();
+        }
+      });
     });
     const scrollToBottom = () => {
       if (chatbox.value) {
         chatbox.value.scrollTop = chatbox.value.scrollHeight;
       }
     };
-    watchEffect(() => {
-      if (
-        state.messages.length &&
-        state.userName !== state.messages[state.messages.length - 1].username
-      ) {
-        sound1.play();
+    window.addEventListener("resize", () => {
+      if (chatbox.value) {
+        let vh = window.innerHeight * 0.01;
+        vh = vh * 100 - 68;
+        chatbox.value.style.height = vh + "px";
       }
     });
+
     return {
+      vh,
       isLoggedIn,
       inputUsername,
       state,
@@ -299,7 +324,8 @@ export default {
       sendMsg,
       logOut,
       isLoading,
-      alert,
+      Alert,
+      AlertMsg,
       chatbox,
     };
   },
@@ -307,6 +333,16 @@ export default {
 </script>
 
 <style>
+html {
+  overflow: hidden;
+  width: 100%;
+}
+body {
+  height: 100%;
+  width: 100vw;
+  position: fixed;
+  /* prevent overscroll bounce*/
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -333,13 +369,7 @@ export default {
   border-radius: 25px;
 }
 section {
-  height: calc(100vh - 130px);
+  height: calc(100vh - 80px);
   overflow-y: auto;
-}
-
-@media screen and (min-width: 640px) {
-  section {
-    height: calc(100vh - 80px);
-  }
 }
 </style>
