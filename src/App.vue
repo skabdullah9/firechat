@@ -2,7 +2,7 @@
   <div class="container  h-screen bg-gray-900 relative">
     <div v-if="isLoggedIn" class="chat min-h-screen">
       <header class="flex justify-between py-5 text-gray-600">
-        <h1 class="font-mono md:text-4xl text-xl ml-2">
+        <h1 class="font-mono md:text-4xl text-xl ml-4">
           Welcome,<span class="text-indigo-700">{{ state.userName }}</span>
         </h1>
         <button
@@ -23,7 +23,7 @@
         <section
           ref="chatbox"
           :class="{ 'overflow-y-auto': !isLoading }"
-          class="relative"
+          class="relative pb-0"
           :style="{ height: vh + 'px' }"
         >
           <div
@@ -43,9 +43,9 @@
               />
             </svg>
           </div>
-          <div v-else class="chatbox px-4">
+          <div v-else class="chatbox px-4 pb-24 ">
             <div
-              v-for="message in state.messages"
+              v-for="(message, index) in state.messages"
               :key="message.key"
               class="flex"
             >
@@ -56,34 +56,64 @@
                     : 'inline-block text-left',
                 ]"
               >
+                {{}}
+
                 <div
-                  class="username text-xs md:text-base font-mono mt-2 mb-1 text-gray-300 px-1"
+                  v-if="
+                    index !== 0
+                      ? state.messages[index - 1].username != message.username
+                      : ''
+                  "
+                  class="username text-xs md:text-base font-mono mt-2 text-gray-300 px-1"
                 >
                   {{ message.username }}
                 </div>
+                <span
+                  v-if="
+                    state.userName === message.username &&
+                      message.date &&
+                      message.showInfo
+                  "
+                  class="font-mono text-xs mr-3 text-gray-400"
+                  >{{ message.time }}, {{ message.date }}
+                </span>
                 <div
                   :class="[
                     state.userName === message.username
                       ? 'bg-indigo-800'
                       : 'bg-gray-700',
                   ]"
-                  class="content pt-1 pb-1 md:pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans"
+                  class="content pt-1 pb-1 md:pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
+                  @click="message.showInfo = !message.showInfo"
                 >
                   {{ message.content }}
                 </div>
+                <span
+                  v-if="
+                    state.userName !== message.username &&
+                      message.date &&
+                      message.showInfo
+                  "
+                  class="font-mono text-xs ml-3 text-gray-400 "
+                  >{{ message.time }}, {{ message.date }}
+                </span>
               </div>
             </div>
           </div>
 
-          <footer class="sticky  left-0 bottom-0 right-0 mx-3 md:mx-4">
+          <footer
+            class="fixed bottom-0  px-3 2xl:max-w-screen-2xl xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md sm:max-w-screen-sm"
+            style="width:100%;"
+          >
             <div class="gradient pt-10 bg-gradient-to-t from-gray-800"></div>
-            <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-8">
+            <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-5">
               <div class="relative text-gray-700 ">
                 <input
                   class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans ring-indigo-600"
                   type="text"
                   v-model="inputMsg"
                   placeholder="Enter message here..."
+                  @keyup.prevent.enter="scroll"
                 />
                 <button
                   type="submit"
@@ -167,15 +197,19 @@
 <script>
 import { reactive, ref, onMounted, onBeforeMount, watchEffect } from "vue";
 import db from "./db.js";
+
 export default {
   setup() {
     const inputUsername = ref("");
     const inputMsg = ref("");
+    const input = ref(null);
     const state = reactive({
       userName: "",
       messages: [],
+      date: "",
+      time: "",
     });
-    let allMsgs = null;
+
     const isLoggedIn = ref(false);
     const isLoading = ref(true);
     let registerdUsernames = reactive([]);
@@ -184,18 +218,30 @@ export default {
     const Alert = ref(false);
     const AlertMsg = ref("username already exists");
     const chatbox = ref(null);
+    const showDate = ref(false);
+    let lastMsgUser = ref(false);
     let sound1 = null;
     let sound2 = null;
+
     const login = () => {
       if (
         inputUsername.value !== "" &&
         inputUsername.value !== null &&
         inputUsername.value !== undefined
       ) {
+        inputUsername.value = inputUsername.value
+          .replace(/\s+/g, "")
+          .toLowerCase();
         if (inputUsername.value.length < 4) {
           localStorage.isLoggedIn = false;
           isLoggedIn.value = false;
           AlertMsg.value = "username atleast 4 characters";
+          Alert.value = true;
+          return;
+        }
+        if (!usernameValidation(inputUsername.value)) {
+          isLoggedIn.value = false;
+          AlertMsg.value = "username is not valid";
           Alert.value = true;
           return;
         }
@@ -239,13 +285,24 @@ export default {
         }
       }
     };
+    const usernameValidation = (username) => {
+      const res = /^[a-z0-9_\.]+$/.exec(username);
+      const valid = !!res;
+      return valid;
+    };
     const sendMsg = () => {
       const msgref = db.database().ref("messages");
-      if (inputMsg.value === "" || inputMsg.value === null) return;
-
+      if (
+        inputMsg.value == "" ||
+        inputMsg.value === null ||
+        inputMsg.value == " "
+      )
+        return;
       const message = {
         username: state.userName,
         content: inputMsg.value,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
       };
       msgref.push(message);
       scrollToBottom();
@@ -288,6 +345,9 @@ export default {
             id: key,
             username: data[key].username,
             content: data[key].content,
+            date: data[key].date,
+            time: data[key].time,
+            showInfo: false,
           });
         });
 
@@ -320,8 +380,13 @@ export default {
         let vh = window.innerHeight * 0.01;
         vh = vh * 100 - 68;
         chatbox.value.style.height = vh + "px";
+        scrollToBottom();
       }
     });
+
+    const scroll = () => {
+      scrollToBottom();
+    };
 
     return {
       vh,
@@ -330,12 +395,16 @@ export default {
       state,
       login,
       inputMsg,
+      input,
       sendMsg,
       logOut,
       isLoading,
+      lastMsgUser,
       Alert,
       AlertMsg,
       chatbox,
+      scroll,
+      showDate,
     };
   },
 };
@@ -351,6 +420,7 @@ body {
   width: 100vw;
   position: fixed;
   /* prevent overscroll bounce*/
+  user-select: none;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -364,7 +434,9 @@ body {
 ::-webkit-scrollbar {
   width: 3px;
 }
-
+::-webkit-scrollbar:hover {
+  width: 6px;
+}
 ::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #1f2937;
