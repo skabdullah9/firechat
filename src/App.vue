@@ -32,9 +32,10 @@
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-1/6 w-1/6 animate-spin "
+              class="h-1/6 w-1/6 animate-spin"
+              :class="`text-${theme}-700`"
               viewBox="0 0 20 20"
-              fill="#6D28D9"
+              fill="currentColor"
             >
               <path
                 fill-rule="evenodd"
@@ -44,59 +45,66 @@
             </svg>
           </div>
           <div v-else class="chatbox px-4 pb-24 ">
-            <div
-              v-for="(message, index) in state.messages"
-              :key="message.key"
-              class="flex"
-            >
-              <div
-                :class="[
-                  state.userName === message.username
-                    ? 'inline-block text-right ml-auto'
-                    : 'inline-block text-left',
-                ]"
+            <div v-for="date in dates" :key="date">
+              <h1
+                v-if="date"
+                class="date border-dashed border-b border-gray-700 mb-4 text-gray-400 font-mono text-2xl pb-4 pt-6"
               >
-                {{}}
-
+                {{ date }}
+              </h1>
+              <div
+                v-for="(message, index) in state.messages"
+                :key="message.key"
+                class="flex items-end"
+              >
                 <div
-                  v-if="
-                    index !== 0
-                      ? state.messages[index - 1].username != message.username
-                      : true
-                  "
-                  class="username text-xs md:text-base font-mono mt-2 text-gray-300 px-1"
-                >
-                  {{ message.username }}
-                </div>
-                <span
-                  v-if="
-                    state.userName === message.username &&
-                      message.date &&
-                      message.showInfo
-                  "
-                  class="font-mono text-xs mr-3 text-gray-400"
-                  >{{ message.time }}, {{ message.date }}
-                </span>
-                <div
+                  v-if="message.date == date"
                   :class="[
                     state.userName === message.username
-                      ? `bg-${theme}-700`
-                      : 'bg-gray-700',
+                      ? 'inline-block text-right ml-auto'
+                      : 'inline-block text-left',
                   ]"
-                  class="content pt-1 pb-1 md:pb-2 px-4 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
-                  @click="message.showInfo = !message.showInfo"
                 >
-                  {{ message.content }}
+                  <div
+                    v-if="
+                      index !== 0
+                        ? state.messages[index - 1].username != message.username
+                        : true
+                    "
+                    class="username text-xs md:text-base font-mono mt-2 text-gray-300 px-1"
+                  >
+                    {{ message.username }}
+                  </div>
+                  <span
+                    v-if="
+                      state.userName === message.username &&
+                        message.date &&
+                        showInfo
+                    "
+                    class="font-mono text-xs mr-3 text-gray-400"
+                    >{{ message.time }}
+                  </span>
+                  <div
+                    :class="[
+                      state.userName === message.username
+                        ? `bg-${theme}-700`
+                        : 'bg-gray-700',
+                    ]"
+                    class="content pt-1 pb-1 md:pb-2 px-4 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
+                    @click.self="showInfo = !showInfo"
+                  >
+                    {{ message.content }}
+                  </div>
+                  <span
+                    v-if="
+                      state.userName !== message.username &&
+                        message.date &&
+                        showInfo
+                    "
+                    class="font-mono text-xs ml-2 inline-block text-gray-400 -mb-6 "
+                    >{{ message.time }}
+                  </span>
                 </div>
-                <span
-                  v-if="
-                    state.userName !== message.username &&
-                      message.date &&
-                      message.showInfo
-                  "
-                  class="font-mono text-xs ml-3 text-gray-400 "
-                  >{{ message.time }}, {{ message.date }}
-                </span>
               </div>
             </div>
           </div>
@@ -115,6 +123,7 @@
                   v-model="inputMsg"
                   placeholder="Enter message here..."
                   @keyup.prevent.enter="scroll"
+                  v-focus
                 />
                 <button
                   type="submit"
@@ -136,7 +145,7 @@
           :class="{ 'w-auto md:h-auto': showColors }"
         >
           <div
-            @click="theme = 'indigo'"
+            @click="changeColor('indigo')"
             class="h-9 w-9 bg-indigo-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0 cursor-pointer "
             :class="{
               'border-2 border-gray-300 ': theme === 'indigo',
@@ -144,7 +153,7 @@
             }"
           ></div>
           <div
-            @click="theme = 'green'"
+            @click="changeColor('green')"
             class="h-9 w-9 bg-green-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer  "
             :class="{
               'border-2 border-gray-300': theme === 'green',
@@ -152,7 +161,7 @@
             }"
           ></div>
           <div
-            @click="theme = 'blue'"
+            @click="changeColor('blue')"
             class="h-9 w-9 bg-blue-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer "
             :class="{
               'border-2 border-gray-300': theme === 'blue',
@@ -161,7 +170,7 @@
           ></div>
 
           <div
-            @click="theme = 'amber'"
+            @click="changeColor('amber')"
             class="h-9 w-9 bg-amber-500 rounded-full mx-2.5 md:my-2.5 flex-shrink-0   cursor-pointer  "
             :class="{
               'border-2 border-gray-300': theme === 'amber',
@@ -216,6 +225,7 @@
                   placeholder=" Enter your username"
                   class="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform border  rounded-md bg-blueGray-100  focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2 mb-2 font-sans "
                   :class="`ring-${theme}-500`"
+                  v-focus
                 />
               </div>
               <button
@@ -261,6 +271,14 @@ import { reactive, ref, onMounted, onBeforeMount, watchEffect } from "vue";
 import db from "./db.js";
 
 export default {
+  directives: {
+    focus: {
+      mounted(el) {
+        // Focus the element
+        el.focus();
+      },
+    },
+  },
   setup() {
     const inputUsername = ref("");
     const inputMsg = ref("");
@@ -271,7 +289,7 @@ export default {
       date: "",
       time: "",
     });
-
+    const dates = ref([]);
     const isLoggedIn = ref(false);
     const isLoading = ref(true);
     let registerdUsernames = reactive([]);
@@ -412,12 +430,15 @@ export default {
             content: data[key].content,
             date: data[key].date,
             time: data[key].time,
-            showInfo: false,
           });
         });
 
         state.messages = messages;
-
+        dates.value = state.messages.map((message) => {
+          return message.date;
+        });
+        dates.value = [...new Set(dates.value)];
+        console.log(dates);
         setTimeout(() => {
           scrollToBottom();
         }, 1);
@@ -434,7 +455,11 @@ export default {
           sound1.play();
         }
       });
-      theme.value = "indigo";
+      if (localStorage.themeColor) {
+        theme.value = localStorage.themeColor;
+      } else {
+        theme.value = "indigo";
+      }
     });
     const scrollToBottom = () => {
       if (chatbox.value) {
@@ -453,7 +478,12 @@ export default {
     const scroll = () => {
       scrollToBottom();
     };
-
+    const showInfo = ref(false);
+    const changeColor = (color) => {
+      theme.value = color;
+      showColors.value = false;
+      localStorage.themeColor = color;
+    };
     return {
       vh,
       isLoggedIn,
@@ -469,10 +499,13 @@ export default {
       Alert,
       AlertMsg,
       chatbox,
+      dates,
       scroll,
       showDate,
       theme,
       showColors,
+      changeColor,
+      showInfo,
     };
   },
 };
