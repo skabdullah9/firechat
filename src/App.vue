@@ -3,7 +3,7 @@
     <div v-if="isLoggedIn" class="chat min-h-screen">
       <header class="flex justify-between py-5 text-gray-600">
         <h1 class="font-mono md:text-4xl text-xl ml-4">
-          Welcome,<span class="text-indigo-700">{{ state.userName }}</span>
+          Welcome,<span :class="`text-${theme}-700`">{{ state.userName }}</span>
         </h1>
         <button
           @click="logOut"
@@ -62,7 +62,7 @@
                   v-if="
                     index !== 0
                       ? state.messages[index - 1].username != message.username
-                      : ''
+                      : true
                   "
                   class="username text-xs md:text-base font-mono mt-2 text-gray-300 px-1"
                 >
@@ -80,10 +80,10 @@
                 <div
                   :class="[
                     state.userName === message.username
-                      ? 'bg-indigo-800'
+                      ? `bg-${theme}-700`
                       : 'bg-gray-700',
                   ]"
-                  class="content pt-1 pb-1 md:pb-2 px-3 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
+                  class="content pt-1 pb-1 md:pb-2 px-4 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
                   @click="message.showInfo = !message.showInfo"
                 >
                   {{ message.content }}
@@ -109,7 +109,8 @@
             <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-5">
               <div class="relative text-gray-700 ">
                 <input
-                  class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans ring-indigo-600"
+                  class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans"
+                  :class="`ring-${theme}-600`"
                   type="text"
                   v-model="inputMsg"
                   placeholder="Enter message here..."
@@ -117,7 +118,8 @@
                 />
                 <button
                   type="submit"
-                  class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white bg-indigo-600 rounded-r-md hover:bg-indigo-500 focus:outline-none"
+                  class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white  focus:outline-none"
+                  :class="`bg-${theme}-700 rounded-r-md hover:bg-${theme}-800`"
                 >
                   Send <img class="ml-2" src="./assets/send.svg" alt="" />
                 </button>
@@ -127,9 +129,66 @@
         </section>
       </div>
     </div>
-    <div v-else class="login overflow-hidden  ">
+    <div v-else class="login overflow-hidden">
+      <div class="theme  fixed top-4 right-6  flex flex-row-reverse md:block">
+        <div
+          class="colors-wrap bg-gray-800 pt-2 pb-2 md:pt-0 md:pb-1 flex md:flex-col h-auto md:h-14 w-14 md:w-auto overflow-hidden rounded-full  transition duration-500 ease-in-out"
+          :class="{ 'w-auto md:h-auto': showColors }"
+        >
+          <div
+            @click="theme = 'indigo'"
+            class="h-9 w-9 bg-indigo-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0 cursor-pointer "
+            :class="{
+              'border-2 border-gray-300 ': theme === 'indigo',
+              'order-first': !showColors && theme === 'indigo',
+            }"
+          ></div>
+          <div
+            @click="theme = 'green'"
+            class="h-9 w-9 bg-green-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer  "
+            :class="{
+              'border-2 border-gray-300': theme === 'green',
+              'order-first': !showColors && theme === 'green',
+            }"
+          ></div>
+          <div
+            @click="theme = 'blue'"
+            class="h-9 w-9 bg-blue-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer "
+            :class="{
+              'border-2 border-gray-300': theme === 'blue',
+              'order-first': !showColors && theme === 'blue',
+            }"
+          ></div>
+
+          <div
+            @click="theme = 'amber'"
+            class="h-9 w-9 bg-amber-500 rounded-full mx-2.5 md:my-2.5 flex-shrink-0   cursor-pointer  "
+            :class="{
+              'border-2 border-gray-300': theme === 'amber',
+              'order-first': !showColors && theme === 'amber',
+            }"
+          ></div>
+        </div>
+        <button
+          class="showColors focus:outline-none"
+          @click="showColors = !showColors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-8 w-8 transform rotate-90 md:rotate-0"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
       <form @submit.prevent="login">
-        <section class="text-blueGray-700 overflow-hidden">
+        <section class="text-blueGray-700 overflow-hidden ">
           <div
             class="container items-center px-5 py-12 lg:px-20 h-screen flex flex-col justify-center"
           >
@@ -155,13 +214,15 @@
                   id="username"
                   name="username"
                   placeholder=" Enter your username"
-                  class="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform border border-indigo-300 rounded-md bg-blueGray-100  focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2 mb-2 font-sans ring-indigo-500"
+                  class="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform border  rounded-md bg-blueGray-100  focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2 mb-2 font-sans "
+                  :class="`ring-${theme}-500`"
                 />
               </div>
               <button
                 type="submit"
                 value="Login"
-                class="w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform bg-indigo-600 rounded-md focus:shadow-outline focus:outline-none hover:bg-indigo-800 cursor-pointer flex items-center justify-center"
+                :class="`bg-${theme}-600 hover:bg-${theme}-800`"
+                class="w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform rounded-md focus:shadow-outline focus:outline-none  cursor-pointer flex items-center justify-center"
               >
                 Login <img class="ml-2" src="./assets/send.svg" alt="" />
               </button>
@@ -179,8 +240,9 @@
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5 inline-block"
+          :class="`text-${theme}-600`"
           viewBox="0 0 20 20"
-          fill="#4F46E5"
+          fill="currentColor"
         >
           <path
             fill-rule="evenodd"
@@ -222,7 +284,8 @@ export default {
     let lastMsgUser = ref(false);
     let sound1 = null;
     let sound2 = null;
-
+    let theme = ref(null);
+    let showColors = ref(false);
     const login = () => {
       if (
         inputUsername.value !== "" &&
@@ -266,6 +329,7 @@ export default {
             localStorage.username = JSON.stringify(registerdUsernames);
             localStorage.isLoggedIn = true;
             isLoggedIn.value = true;
+            showColors.value = false;
             setTimeout(() => {
               scrollToBottom();
             }, 1);
@@ -282,6 +346,7 @@ export default {
           localStorage.username = JSON.stringify(registerdUsernames);
           localStorage.isLoggedIn = true;
           isLoggedIn.value = true;
+          showColors.value = false;
         }
       }
     };
@@ -369,6 +434,7 @@ export default {
           sound1.play();
         }
       });
+      theme.value = "indigo";
     });
     const scrollToBottom = () => {
       if (chatbox.value) {
@@ -405,6 +471,8 @@ export default {
       chatbox,
       scroll,
       showDate,
+      theme,
+      showColors,
     };
   },
 };
@@ -432,11 +500,10 @@ body {
   overflow: hidden;
 }
 ::-webkit-scrollbar {
-  width: 3px;
+  width: 4px;
+  cursor: pointer;
 }
-::-webkit-scrollbar:hover {
-  width: 6px;
-}
+
 ::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #1f2937;
@@ -449,7 +516,12 @@ body {
   background-color: #4b5563;
   border-radius: 25px;
 }
+
 section {
   height: calc(100vh - 80px);
+}
+.theme div,
+.showColors {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 </style>
