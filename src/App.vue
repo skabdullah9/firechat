@@ -224,7 +224,7 @@
                   name="username"
                   placeholder=" Enter your username"
                   class="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform border  rounded-md bg-blueGray-100  focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2 mb-2 font-sans "
-                  :class="`ring-${theme}-500`"
+                  :class="'ring-' + theme + '-500'"
                   v-focus
                 />
               </div>
@@ -494,6 +494,9 @@ export default {
       currentColor.value = localStorage.themeColor = color;
       currentColor.value = allColors[index];
       console.log(theme.value);
+    };
+    const updateColor = (el, color, value) => {
+      return;
     };
     return {
       vh,
