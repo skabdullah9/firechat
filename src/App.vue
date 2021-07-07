@@ -3,7 +3,9 @@
     <div v-if="isLoggedIn" class="chat min-h-screen">
       <header class="flex justify-between py-5 text-gray-600">
         <h1 class="font-mono md:text-4xl text-xl ml-4">
-          Welcome,<span :class="`text-${theme}-700`">{{ state.userName }}</span>
+          Welcome,<span :class="allColors.text[currentColor]">{{
+            state.userName
+          }}</span>
         </h1>
         <button
           @click="logOut"
@@ -33,7 +35,7 @@
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-1/6 w-1/6 animate-spin"
-              :class="`text-${theme}-700`"
+              :class="allColors.text[currentColor]"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -87,7 +89,7 @@
                   <div
                     :class="[
                       state.userName === message.username
-                        ? `bg-${theme}-700`
+                        ? allColors.btn[currentColor]
                         : 'bg-gray-700',
                     ]"
                     class="content pt-1 pb-1 md:pb-2 px-4 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
@@ -118,7 +120,7 @@
               <div class="relative text-gray-700 ">
                 <input
                   class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans"
-                  :class="`ring-${theme}-600`"
+                  :class="allColors.ring[currentColor]"
                   type="text"
                   v-model="inputMsg"
                   placeholder="Enter message here..."
@@ -128,7 +130,7 @@
                 <button
                   type="submit"
                   class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white  focus:outline-none"
-                  :class="`bg-${theme}-700 rounded-r-md hover:bg-${theme}-800`"
+                  :class="allColors.btn[currentColor]"
                 >
                   Send <img class="ml-2" src="./assets/send.svg" alt="" />
                 </button>
@@ -145,36 +147,36 @@
           :class="{ 'w-auto md:h-auto': showColors }"
         >
           <div
-            @click="changeColor('indigo', 0)"
+            @click="changeColor(0)"
             class="h-9 w-9 bg-indigo-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0 cursor-pointer "
             :class="{
-              'border-2 border-gray-300 ': theme === 'indigo',
-              'order-first': !showColors && theme === 'indigo',
+              'border-2 border-gray-300 ': currentColor == 0,
+              'order-first': !showColors && currentColor == 0,
             }"
           ></div>
           <div
-            @click="changeColor('green', 1)"
+            @click="changeColor(1)"
             class="h-9 w-9 bg-green-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer  "
             :class="{
-              'border-2 border-gray-300': theme === 'green',
-              'order-first': !showColors && theme === 'green',
+              'border-2 border-gray-300': currentColor == 1,
+              'order-first': !showColors && currentColor == 1,
             }"
           ></div>
           <div
-            @click="changeColor('blue', 2)"
+            @click="changeColor(2)"
             class="h-9 w-9 bg-blue-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer "
             :class="{
-              'border-2 border-gray-300': theme === 'blue',
-              'order-first': !showColors && theme === 'blue',
+              'border-2 border-gray-300': currentColor == 2,
+              'order-first': !showColors && currentColor == 2,
             }"
           ></div>
 
           <div
-            @click="changeColor('amber', 3)"
+            @click="changeColor(3)"
             class="h-9 w-9 bg-amber-500 rounded-full mx-2.5 md:my-2.5 flex-shrink-0   cursor-pointer  "
             :class="{
-              'border-2 border-gray-300': theme === 'amber',
-              'order-first': !showColors && theme === 'amber',
+              'border-2 border-gray-300': currentColor == 3,
+              'order-first': !showColors && currentColor == 3,
             }"
           ></div>
         </div>
@@ -224,7 +226,7 @@
                   name="username"
                   placeholder=" Enter your username"
                   class="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform border  rounded-md bg-blueGray-100  focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2 mb-2 font-sans "
-                  :class="'ring-' + theme + '-500'"
+                  :class="allColors.ring[currentColor]"
                   v-focus
                 />
               </div>
@@ -232,7 +234,7 @@
                 type="submit"
                 value="Login"
                 class="w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform rounded-md focus:shadow-outline focus:outline-none  cursor-pointer flex items-center justify-center"
-                :class="currentColor"
+                :class="allColors.btn[currentColor]"
               >
                 Login <img class="ml-2" src="./assets/send.svg" alt="" />
               </button>
@@ -250,7 +252,7 @@
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5 inline-block"
-          :class="`text-${theme}-600`"
+          :class="allColors.text[currentColor]"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -304,12 +306,26 @@ export default {
     let sound2 = null;
     let theme = ref(null);
     let showColors = ref(false);
-    let allColors = reactive([
-      "bg-indigo-600 hover:bg-indigo-800",
-      "bg-green-600 hover:bg-green-800",
-      "bg-blue-600 hover:bg-blue-800",
-      "bg-amber-600 hover:bg-amber-800",
-    ]);
+    let allColors = reactive({
+      btn: [
+        "bg-indigo-600 hover:bg-indigo-800",
+        "bg-green-600 hover:bg-green-800",
+        "bg-blue-600 hover:bg-blue-800",
+        "bg-amber-600 hover:bg-amber-800",
+      ],
+      ring: [
+        "ring-indigo-500",
+        "ring-green-500",
+        "ring-blue-500",
+        "ring-amber-500",
+      ],
+      text: [
+        "text-indigo-600",
+        "text-green-600",
+        "text-blue-600",
+        "text-amber-600",
+      ],
+    });
     let currentColor = ref(allColors[0]);
     const login = () => {
       if (
@@ -422,13 +438,12 @@ export default {
           state.userName = "";
         }
       }
-      if (localStorage.themeColor) {
-        theme.value = localStorage.themeColor;
+      if (localStorage.currentColor) {
+        currentColor.value = localStorage.currentColor;
       } else {
-        theme.value = "indigo";
-        localStorage.themeColor = "indigo";
+        currentColor.value = 0;
+        localStorage.currentColor = 0;
       }
-      ``;
     });
 
     onMounted(() => {
@@ -488,16 +503,12 @@ export default {
       scrollToBottom();
     };
     const showInfo = ref(false);
-    const changeColor = (color, index) => {
-      theme.value = color;
+    const changeColor = (index) => {
+      currentColor.value = index;
       showColors.value = false;
-      currentColor.value = localStorage.themeColor = color;
-      currentColor.value = allColors[index];
-      console.log(theme.value);
+      localStorage.currentColor = index;
     };
-    const updateColor = (el, color, value) => {
-      return;
-    };
+
     return {
       vh,
       isLoggedIn,
