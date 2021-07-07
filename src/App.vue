@@ -459,6 +459,7 @@ export default {
         theme.value = localStorage.themeColor;
       } else {
         theme.value = "indigo";
+        localStorage.themeColor = "indigo";
       }
     });
     const scrollToBottom = () => {
