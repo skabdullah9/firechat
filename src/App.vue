@@ -232,7 +232,7 @@
                 type="submit"
                 value="Login"
                 :class="`bg-${theme}-600 hover:bg-${theme}-800`"
-                class="w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform rounded-md focus:shadow-outline focus:outline-none  cursor-pointer flex items-center justify-center"
+                class="bg-indigo-600 w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform rounded-md focus:shadow-outline focus:outline-none  cursor-pointer flex items-center justify-center"
               >
                 Login <img class="ml-2" src="./assets/send.svg" alt="" />
               </button>
@@ -421,6 +421,7 @@ export default {
         theme.value = "indigo";
         localStorage.themeColor = "indigo";
       }
+      ``;
     });
 
     onMounted(() => {
