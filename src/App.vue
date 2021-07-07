@@ -145,7 +145,7 @@
           :class="{ 'w-auto md:h-auto': showColors }"
         >
           <div
-            @click="changeColor('indigo')"
+            @click="changeColor('indigo', 0)"
             class="h-9 w-9 bg-indigo-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0 cursor-pointer "
             :class="{
               'border-2 border-gray-300 ': theme === 'indigo',
@@ -153,7 +153,7 @@
             }"
           ></div>
           <div
-            @click="changeColor('green')"
+            @click="changeColor('green', 1)"
             class="h-9 w-9 bg-green-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer  "
             :class="{
               'border-2 border-gray-300': theme === 'green',
@@ -161,7 +161,7 @@
             }"
           ></div>
           <div
-            @click="changeColor('blue')"
+            @click="changeColor('blue', 2)"
             class="h-9 w-9 bg-blue-500 rounded-full mx-2.5 md:mt-2.5 flex-shrink-0  cursor-pointer "
             :class="{
               'border-2 border-gray-300': theme === 'blue',
@@ -170,7 +170,7 @@
           ></div>
 
           <div
-            @click="changeColor('amber')"
+            @click="changeColor('amber', 3)"
             class="h-9 w-9 bg-amber-500 rounded-full mx-2.5 md:my-2.5 flex-shrink-0   cursor-pointer  "
             :class="{
               'border-2 border-gray-300': theme === 'amber',
@@ -231,8 +231,8 @@
               <button
                 type="submit"
                 value="Login"
-                :class="`bg-${theme}-600 hover:bg-${theme}-800`"
-                class="bg-indigo-600 w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform rounded-md focus:shadow-outline focus:outline-none  cursor-pointer flex items-center justify-center"
+                class="w-full text-center py-2 my-2 mr-2 text-base text-white transition duration-500 ease-in-out transform rounded-md focus:shadow-outline focus:outline-none  cursor-pointer flex items-center justify-center"
+                :class="currentColor"
               >
                 Login <img class="ml-2" src="./assets/send.svg" alt="" />
               </button>
@@ -304,6 +304,13 @@ export default {
     let sound2 = null;
     let theme = ref(null);
     let showColors = ref(false);
+    let allColors = reactive([
+      "bg-indigo-600 hover:bg-indigo-800",
+      "bg-green-600 hover:bg-green-800",
+      "bg-blue-600 hover:bg-blue-800",
+      "bg-amber-600 hover:bg-amber-800",
+    ]);
+    let currentColor = ref(allColors[0]);
     const login = () => {
       if (
         inputUsername.value !== "" &&
@@ -481,10 +488,11 @@ export default {
       scrollToBottom();
     };
     const showInfo = ref(false);
-    const changeColor = (color) => {
+    const changeColor = (color, index) => {
       theme.value = color;
       showColors.value = false;
-      localStorage.themeColor = color;
+      currentColor.value = localStorage.themeColor = color;
+      currentColor.value = allColors[index];
       console.log(theme.value);
     };
     return {
@@ -509,6 +517,8 @@ export default {
       showColors,
       changeColor,
       showInfo,
+      allColors,
+      currentColor,
     };
   },
 };
