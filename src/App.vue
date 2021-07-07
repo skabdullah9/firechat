@@ -1,5 +1,5 @@
 <template>
-  <div class="container  h-screen bg-gray-900 relative">
+  <div class="container  h-screen  relative ">
     <div v-if="isLoggedIn" class="chat min-h-screen">
       <header class="flex justify-between py-5 text-gray-600">
         <h1 class="font-mono md:text-4xl text-xl ml-4">
@@ -17,7 +17,7 @@
       </header>
       <div
         id="wrapper"
-        class="wrapper bg-gray-800 rounded-lg md:rounded-xl text-gray-100 pr-px relative"
+        class="wrapper bg-gray-800 bg-opacity-50 bg-clip-padding backdrop-filter backdrop-blur rounded-lg md:rounded-xl text-gray-100 pr-px relative"
       >
         <div
           class="absolute p-1 pb-1.5 -right-1 -top-1 bg-gray-900 rounded-3xl z-10"
@@ -50,14 +50,15 @@
             <div v-for="date in dates" :key="date">
               <h1
                 v-if="date"
-                class="date border-dashed border-b border-gray-700 mb-4 text-gray-400 font-mono text-2xl pb-4 pt-6"
+                class="date border-dashed border-b border-gray-700 mb-4 text-gray-400 font-mono text-base md:text-xl pb-2 md:pb-4 pt-6"
               >
                 {{ date }}
               </h1>
               <div
+                @click.self="showInfo = false"
                 v-for="(message, index) in state.messages"
                 :key="message.key"
-                class="flex items-end"
+                class="flex items-end "
               >
                 <div
                   v-if="message.date == date"
@@ -70,7 +71,10 @@
                   <div
                     v-if="
                       index !== 0
-                        ? state.messages[index - 1].username != message.username
+                        ? message.date != state.messages[index - 1].date
+                          ? true
+                          : state.messages[index - 1].username !=
+                            message.username
                         : true
                     "
                     class="username text-xs md:text-base font-mono mt-2 text-gray-300 px-1"
@@ -81,7 +85,7 @@
                     v-if="
                       state.userName === message.username &&
                         message.date &&
-                        showInfo
+                        showInfo == message.id
                     "
                     class="font-mono text-xs mr-3 text-gray-400"
                     >{{ message.time }}
@@ -90,18 +94,19 @@
                     :class="[
                       state.userName === message.username
                         ? allColors.btn[currentColor]
-                        : 'bg-gray-700',
+                        : 'bg-gray-700 hover:bg-gray-600',
                     ]"
                     class="content pt-1 pb-1 md:pb-2 px-4 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
-                    @click.self="showInfo = !showInfo"
+                    @click="showInfo = message.id"
                   >
                     {{ message.content }}
                   </div>
+
                   <span
                     v-if="
                       state.userName !== message.username &&
                         message.date &&
-                        showInfo
+                        showInfo == message.id
                     "
                     class="font-mono text-xs ml-2 inline-block text-gray-400 -mb-6 "
                     >{{ message.time }}
@@ -119,17 +124,17 @@
             <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-5">
               <div class="relative text-gray-700 ">
                 <input
-                  class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-md focus:outline-none focus:ring-2 font-sans"
+                  class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-lg focus:outline-none focus:ring-2 font-sans"
                   :class="allColors.ring[currentColor]"
                   type="text"
                   v-model="inputMsg"
                   placeholder="Enter message here..."
-                  @keyup.prevent.enter="scroll"
+                  @keyup.space="validate($event)"
                   v-focus
                 />
                 <button
                   type="submit"
-                  class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white  focus:outline-none"
+                  class="absolute inset-y-0 right-0 flex items-center px-4 font-semibold text-white  focus:outline-none rounded-tr-lg rounded-br-lg"
                   :class="allColors.btn[currentColor]"
                 >
                   Send <img class="ml-2" src="./assets/send.svg" alt="" />
@@ -210,7 +215,7 @@
               ❌ '{{ inputUsername }}' {{ AlertMsg }}
             </div>
             <div
-              class="flex flex-col w-full py-10 px-5 md:px-10 mx-auto transition duration-500 ease-in-out transform bg-gray-800  rounded-lg lg:w-3/6 md:w-1/2 md:mt-0 max-w-sm"
+              class="flex flex-col w-full py-10 px-5 md:px-10 mx-auto transition duration-500 ease-in-out transform bg-gray-600 bg-opacity-10  backdrop-filter backdrop-blur-sm  rounded-lg lg:w-3/6 md:w-1/2 md:mt-0 max-w-sm"
             >
               <div class="relative">
                 <h1
@@ -304,7 +309,7 @@ export default {
     let lastMsgUser = ref(false);
     let sound1 = null;
     let sound2 = null;
-    let theme = ref(null);
+
     let showColors = ref(false);
     let allColors = reactive({
       btn: [
@@ -314,10 +319,10 @@ export default {
         "bg-amber-600 hover:bg-amber-800",
       ],
       ring: [
-        "ring-indigo-500",
-        "ring-green-500",
-        "ring-blue-500",
-        "ring-amber-500",
+        "ring-indigo-600",
+        "ring-green-600",
+        "ring-blue-600",
+        "ring-amber-600",
       ],
       text: [
         "text-indigo-600",
@@ -496,6 +501,7 @@ export default {
         vh = vh * 100 - 68;
         chatbox.value.style.height = vh + "px";
         scrollToBottom();
+        inputUsername.value.focus();
       }
     });
 
@@ -508,7 +514,13 @@ export default {
       showColors.value = false;
       localStorage.currentColor = index;
     };
-
+    const validate = (e) => {
+      scrollToBottom();
+      // inputMsg.value.focus();
+      // console.log(e.target.fo,);
+      e.target.focus();
+      sound2.play();
+    };
     return {
       vh,
       isLoggedIn,
@@ -527,7 +539,7 @@ export default {
       dates,
       scroll,
       showDate,
-      theme,
+      validate,
       showColors,
       changeColor,
       showInfo,
@@ -549,14 +561,20 @@ body {
   position: fixed;
   /* prevent overscroll bounce*/
   user-select: none;
+  background: url("./assets/bg.jpg") no-repeat, #111827;
+
+  background-color: #111827;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='%23374151' fill-opacity='0.4'%3E%3Cpath d='M12 0h18v6h6v6h6v18h-6v6h-6v6H12v-6H6v-6H0V12h6V6h6V0zm12 6h-6v6h-6v6H6v6h6v6h6v6h6v-6h6v-6h6v-6h-6v-6h-6V6zm-6 12h6v6h-6v-6zm24 24h6v6h-6v-6z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  background-color: #111827;
+  background-color: rgba(17, 24, 39, 0.75);
   overflow: hidden;
 }
 ::-webkit-scrollbar {
@@ -581,7 +599,9 @@ section {
   height: calc(100vh - 80px);
 }
 .theme div,
-.showColors {
+.showColors,
+button,
+* {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 </style>
