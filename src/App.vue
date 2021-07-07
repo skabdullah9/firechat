@@ -415,6 +415,12 @@ export default {
           state.userName = "";
         }
       }
+      if (localStorage.themeColor) {
+        theme.value = localStorage.themeColor;
+      } else {
+        theme.value = "indigo";
+        localStorage.themeColor = "indigo";
+      }
     });
 
     onMounted(() => {
@@ -455,12 +461,6 @@ export default {
           sound1.play();
         }
       });
-      if (localStorage.themeColor) {
-        theme.value = localStorage.themeColor;
-      } else {
-        theme.value = "indigo";
-        localStorage.themeColor = "indigo";
-      }
     });
     const scrollToBottom = () => {
       if (chatbox.value) {
@@ -484,6 +484,7 @@ export default {
       theme.value = color;
       showColors.value = false;
       localStorage.themeColor = color;
+      console.log(theme.value);
     };
     return {
       vh,
