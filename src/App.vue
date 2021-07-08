@@ -97,7 +97,11 @@
                         : 'bg-gray-700 hover:bg-gray-600',
                     ]"
                     class="content pt-1 pb-1 md:pb-2 px-4 text-base md:text-xl inline-block rounded-3xl font-sans my-1"
-                    @click="showInfo = message.id"
+                    @click="
+                      showInfo == message.id
+                        ? (showInfo = false)
+                        : (showInfo = message.id)
+                    "
                   >
                     {{ message.content }}
                   </div>
@@ -129,7 +133,7 @@
                   type="text"
                   v-model="inputMsg"
                   placeholder="Enter message here..."
-                  @keyup.space="validate($event)"
+                  @keyup="validate($event)"
                   v-focus
                 />
                 <button
@@ -332,6 +336,7 @@ export default {
       ],
     });
     let currentColor = ref(allColors[0]);
+
     const login = () => {
       if (
         inputUsername.value !== "" &&
@@ -500,8 +505,6 @@ export default {
         let vh = window.innerHeight * 0.01;
         vh = vh * 100 - 68;
         chatbox.value.style.height = vh + "px";
-        scrollToBottom();
-        inputUsername.value.focus();
       }
     });
 
@@ -515,11 +518,13 @@ export default {
       localStorage.currentColor = index;
     };
     const validate = (e) => {
-      scrollToBottom();
-      // inputMsg.value.focus();
-      // console.log(e.target.fo,);
       e.target.focus();
-      sound2.play();
+      if (chatbox.value) {
+        let vh = window.innerHeight * 0.01;
+        vh = vh * 100 - 68;
+        chatbox.value.style.height = vh + "px";
+        scrollToBottom();
+      }
     };
     return {
       vh,
