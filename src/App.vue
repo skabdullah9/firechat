@@ -1,5 +1,5 @@
 <template>
-  <div class="container  h-screen  relative ">
+  <div class="container h-screen  relative ">
     <div v-if="isLoggedIn" class="chat min-h-screen">
       <header class="flex justify-between py-5 text-gray-600">
         <h1 class="font-mono md:text-4xl text-xl ml-4">
@@ -134,7 +134,6 @@
                   v-model="inputMsg"
                   placeholder="Enter message here..."
                   @keyup="validate($event)"
-                  v-focus
                 />
                 <button
                   type="submit"
@@ -150,7 +149,9 @@
       </div>
     </div>
     <div v-else class="login overflow-hidden">
-      <div class="theme  fixed top-4 right-6  flex flex-row-reverse md:block">
+      <div
+        class="theme  fixed top-4 right-4 md:right-6  flex flex-row-reverse md:block"
+      >
         <div
           class="colors-wrap bg-gray-800 pt-2 pb-2 md:pt-0 md:pb-1 flex md:flex-col h-auto md:h-14 w-14 md:w-auto overflow-hidden rounded-full  transition duration-500 ease-in-out"
           :class="{ 'w-auto md:h-auto': showColors }"
@@ -208,13 +209,13 @@
         </button>
       </div>
       <form @submit.prevent="login">
-        <section class="text-blueGray-700 overflow-hidden ">
+        <section class="text-blueGray-700 overflow-hidden">
           <div
             class="container items-center px-5 py-12 lg:px-20 h-screen flex flex-col justify-center"
           >
             <div
               v-if="Alert"
-              class="alert bg-red-100 text-red-600 px-4 py-1 mb-5 rounded-md border-2 border-red-500 font-mono text-sm md:text-base"
+              class="alert bg-red-100 text-red-600 px-1 md:px-4 py-1 mb-5 rounded-md border-2 border-red-500 font-mono text-sm md:text-base"
             >
               ❌ '{{ inputUsername }}' {{ AlertMsg }}
             </div>
@@ -230,7 +231,7 @@
                 <input
                   type="text"
                   v-model="inputUsername"
-                  v-on:keyup.backspace="Alert = false"
+                  @keydown="$event.keyCode != enter ? (Alert = false) : ''"
                   id="username"
                   name="username"
                   placeholder=" Enter your username"
@@ -338,6 +339,12 @@ export default {
     let currentColor = ref(allColors[0]);
 
     const login = () => {
+      if (chatbox.value) {
+        let vh = window.innerHeight * 0.01;
+        vh = vh * 100 - 68;
+        chatbox.value.style.height = vh + "px";
+        scrollToBottom();
+      }
       if (
         inputUsername.value !== "" &&
         inputUsername.value !== null &&
@@ -389,6 +396,7 @@ export default {
             isLoggedIn.value = false;
             AlertMsg.value = "username already exists";
             Alert.value = true;
+            console.log("username exists");
           }
         } else {
           state.userName = inputUsername.value;
@@ -477,7 +485,6 @@ export default {
           return message.date;
         });
         dates.value = [...new Set(dates.value)];
-        console.log(dates);
         setTimeout(() => {
           scrollToBottom();
         }, 1);
