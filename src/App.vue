@@ -87,7 +87,7 @@
                         message.date &&
                         showInfo == message.id
                     "
-                    class="font-mono text-xs mr-3 text-gray-400"
+                    class="tool-tip-left bg-gray-900 px-2 py-1 rounded-xl font-mono text-xs mr-4 text-gray-400"
                     >{{ message.time }}
                   </span>
                   <div
@@ -112,7 +112,7 @@
                         message.date &&
                         showInfo == message.id
                     "
-                    class="font-mono text-xs ml-2 inline-block text-gray-400 -mb-6 "
+                    class="tool-tip-right font-mono text-xs ml-4 inline-block text-gray-400 -mb-6 bg-gray-900 px-2 py-1 rounded-xl"
                     >{{ message.time }}
                   </span>
                 </div>
@@ -121,11 +121,11 @@
           </div>
 
           <footer
-            class="fixed bottom-0  px-3 2xl:max-w-screen-2xl xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md sm:max-w-screen-sm"
+            class="fixed bottom-0 px-4 2xl:max-w-screen-2xl xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md sm:max-w-screen-sm"
             style="width:100%;"
           >
-            <div class="gradient pt-10 bg-gradient-to-t from-gray-800"></div>
-            <form @submit.prevent="sendMsg" class=" bg-gray-800 pb-3 md:pb-5">
+            <div class="gradient pt-12 bg-gradient-to-t from-gray-800"></div>
+            <form @submit.prevent="sendMsg" class="bg-gray-800 mb-0 pb-4 md:pb-6">
               <div class="relative text-gray-700 ">
                 <input
                   class="w-full h-10 pl-3 pr-8 text-base placeholder-gray-600 border rounded-lg focus:outline-none focus:ring-2 font-sans"
@@ -615,5 +615,28 @@ section {
 button,
 * {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.tool-tip-right,
+.tool-tip-left {
+  position: relative;
+}
+.tool-tip-right::before,
+.tool-tip-left::before{
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent #111827 transparent transparent;
+      top: 0;
+      left: 0;
+      transform: translate(-85%,45%);
+}
+.tool-tip-left::before {
+      left: unset;
+      right: 0;
+      border-color: transparent  transparent transparent #111827;
+      transform: translate(85%,45%);
 }
 </style>
